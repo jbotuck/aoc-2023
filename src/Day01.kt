@@ -36,6 +36,7 @@ private val words = mapOf(
 ).mapValues { it.value.toString() }
     .let { alphaMap -> alphaMap + alphaMap.values.associateBy { it } }
 
-private fun String.firstDigit() = findAnyOf(words.keys)!!.second.numericalDigit()
-private fun String.lastDigit() = findLastAnyOf(words.keys)!!.second.numericalDigit()
+private fun String.firstDigit() = findAnyOf(words.keys)!!.numericalDigit()
+private fun String.lastDigit() = findLastAnyOf(words.keys)!!.numericalDigit()
+private fun Pair<Int, String>.numericalDigit() = second.numericalDigit()
 private fun String.numericalDigit() = words[this]
