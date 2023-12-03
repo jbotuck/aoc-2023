@@ -10,14 +10,14 @@ fun main() {
     part2(input).println()
 }
 
-fun part1(input: List<String>): Int {
+private fun part1(input: List<String>): Int {
     return input.sumOf { s ->
         s.filter { it.isDigit() }
             .let { "${it.first()}${it.last()}".toInt() }
     }
 }
 
-fun part2(input: List<String>): Int {
+private fun part2(input: List<String>): Int {
     return input.sumOf { s ->
         "${s.firstDigit()}${s.lastDigit()}".toInt()
     }
