@@ -1,35 +1,37 @@
 import java.util.*
 import kotlin.collections.ArrayDeque
+import kotlin.time.measureTime
 
 fun main() {
-    val input = readInput("Day05")
-    val seeds = input.first().substringAfter("seeds: ").split(' ').map { it.toLong() }
+    measureTime {
+        val input = readInput("Day05")
+        val seeds = input.first().substringAfter("seeds: ").split(' ').map { it.toLong() }
 
-    val mappings = sequence {
-        var index = 3
-        while (index < input.size) {
-            yield(Mapping(
-                sequence {
-                    while (input.getOrNull(index)?.isNotBlank() == true) {
-                        val (destination, source, length) = input[index++].split(' ').map { it.toLong() }
-                        yield(MappingRule(destination, source, length))
-                    }
-                }.associateBy { it.source }
-                    .let { TreeMap(it) }
-            ))
-            index += 2
-        }
-    }.toList()
-    part1(seeds, mappings).println()
-    part2(seeds, mappings).println()
+        val mappings = sequence {
+            var index = 3
+            while (index < input.size) {
+                yield(Mapping(
+                    sequence {
+                        while (input.getOrNull(index)?.isNotBlank() == true) {
+                            val (destination, source, length) = input[index++].split(' ').map { it.toLong() }
+                            yield(MappingRule(destination, source, length))
+                        }
+                    }.associateBy { it.source }
+                        .let { TreeMap(it) }
+                ))
+                index += 2
+            }
+        }.toList()
+        part1(seeds, mappings).println()
+        part2(seeds, mappings).println()
+    }.also { println(it) }
 }
 
 private data class Mapping(val mappingRules: TreeMap<Long, MappingRule>) {
     fun map(x: Long): Long {
         return mappingRules.floorEntry(x)
             ?.value
-            ?.takeIf { it.source + it.length > x }
-            ?.let { it.destination + (x - it.source) }
+            ?.map(x)
             ?: x
     }
 
@@ -42,17 +44,8 @@ private data class Mapping(val mappingRules: TreeMap<Long, MappingRule>) {
             //create a synthetic rule to be processed when we go through the relevant rule subset
             mappingRules.floorEntry(start)
                 ?.value
-                ?.takeIf { it.source + it.length > start }
-                ?.let {
-                    val diff = start - it.source
-                    subset.addFirst(
-                        MappingRule(
-                            destination = it.destination + diff,
-                            source = it.source + diff,
-                            length = it.length - diff
-                        )
-                    )
-                }
+                ?.ruleFor(start)
+                ?.let { subset.addFirst(it) }
         }
         while (subset.isNotEmpty()) {
             val nextRule = subset.removeFirst()
@@ -76,6 +69,11 @@ private data class MappingRule(val destination: Long, val source: Long, val leng
     override fun compareTo(other: MappingRule): Int {
         return source.compareTo(other.source)
     }
+
+    fun map(x: Long) = x.minus(source).takeIf { it in 0 until length }?.let { destination + it }
+    fun ruleFor(start: Long) = start.minus(source)
+        .takeIf { it in 0 until length }
+        ?.let { MappingRule(destination = destination + it, source = start, length = length - it) }
 }
 
 
