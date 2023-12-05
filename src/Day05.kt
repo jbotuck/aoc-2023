@@ -1,5 +1,5 @@
-import java.util.NavigableSet
-import java.util.TreeSet
+import java.util.*
+import kotlin.collections.ArrayDeque
 
 fun main() {
     val input = readInput("Day05")
@@ -8,12 +8,15 @@ fun main() {
     val mappings = sequence {
         var index = 3
         while (index < input.size) {
-            yield(Mapping(sequence {
-                while (input.getOrNull(index)?.isNotBlank() == true) {
-                    val (destination, source, length) = input[index++].split(' ').map { it.toLong() }
-                    this.yield(MappingRule(destination, source, length))
-                }
-            }.let { TreeSet(it.toList()) }))
+            yield(Mapping(
+                sequence {
+                    while (input.getOrNull(index)?.isNotBlank() == true) {
+                        val (destination, source, length) = input[index++].split(' ').map { it.toLong() }
+                        yield(MappingRule(destination, source, length))
+                    }
+                }.associateBy { it.source }
+                    .let { TreeMap(it) }
+            ))
             index += 2
         }
     }.toList()
@@ -21,40 +24,52 @@ fun main() {
     part2(seeds, mappings).println()
 }
 
-private data class Mapping(val mappingRules: NavigableSet<MappingRule>) {
+private data class Mapping(val mappingRules: TreeMap<Long, MappingRule>) {
     fun map(x: Long): Long {
-        return mappingRules.floor(MappingRule( 0, x, 0))
+        return mappingRules.floorEntry(x)
+            ?.value
             ?.takeIf { it.source + it.length > x }
             ?.let { it.destination + (x - it.source) }
             ?: x
     }
 
-    fun map(x: List<Pair<Long, Long>>): List<Pair<Long, Long>> {
-        return x.flatMap { map(it) }
-    }
+    fun map(x: List<Pair<Long, Long>>) = x.flatMap { map(it) }
 
-    fun map(x: Pair<Long, Long>): List<Pair<Long, Long>> = sequence<Pair<Long, Long>> {
+    fun map(x: Pair<Long, Long>) = sequence {
         var (start, length) = x
-        mappingRules.floor(MappingRule(0,start,0))
-            ?.let { it.destination + start - it.source to it.length - (start - it.source)}
-            ?.takeIf { it.second > 0 }
-            ?.also {
-                yield(it)
-                start += it.second
-                length -= it.second
+        val subset = ArrayDeque(mappingRules.subMap(start, start + length).values)
+        if (subset.firstOrNull()?.source?.let { it == start } != true) {
+            //create a synthetic rule to be processed when we go through the relevant rule subset
+            mappingRules.floorEntry(start)
+                ?.value
+                ?.takeIf { it.source + it.length > start }
+                ?.let {
+                    val diff = start - it.source
+                    subset.addFirst(
+                        MappingRule(
+                            destination = it.destination + diff,
+                            source = it.source + diff,
+                            length = it.length - diff
+                        )
+                    )
+                }
+        }
+        while (subset.isNotEmpty()) {
+            val nextRule = subset.removeFirst()
+            if (nextRule.source > start) {
+                val nextLength = nextRule.source - start
+                yield(start to nextLength)
+                start += nextLength
+                length -= nextLength
             }
+            val nextLength = nextRule.length.coerceAtMost(length)
+            yield(nextRule.destination to nextLength)
+            start += nextLength
+            length -= nextLength
+        }
+        if (length > 0) yield(start to length)
     }.toList()
 
-        val x = x.first..x.first + x.second.dec()
-        return sequence {
-            val subSet = mappingRules
-                .subSet(
-                    MappingRule(0, x.first, 0), true,
-                    MappingRule(0, x.last, 0), true
-                )
-
-        }.toList()
-    }
 }
 
 private data class MappingRule(val destination: Long, val source: Long, val length: Long) : Comparable<MappingRule> {
