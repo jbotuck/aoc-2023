@@ -21,6 +21,6 @@ fun main() {
 
 }
 
-data class Node(val id: String, val left: String, val right: String) {
+private data class Node(val id: String, val left: String, val right: String) {
     fun nextNodeId(direction: Char) = if (direction == 'L') left else right
 }
