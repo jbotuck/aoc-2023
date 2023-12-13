@@ -5,7 +5,7 @@ fun main() {
     solve(input)
     solve(input, 999_999)
 }
-fun solve(input: List<String>, shift: Int = 1){
+private fun solve(input: List<String>, shift: Int = 1){
     val galaxies = input.flatMapIndexed { y, row ->
         row.mapIndexedNotNull { x, c ->
             c.takeIf { it == '#' }?.let { Galaxy(y, x) }
