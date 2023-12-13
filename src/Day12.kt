@@ -17,13 +17,9 @@ fun main() {
 }
 
 fun arrangementCount(line: String, quantities: List<Int>): Long {
-
-    val memoTable = mutableMapOf<Pair<Int, Int>, Long>()
-    //spaceRequired[n] yields the amount of space required when trying to place all quantities from index n and on
-    //val spaceRequired = quantities.reversed().runningReduce { a, b -> a + b.inc() }.reversed()
-
+    val arrangementCount = mutableMapOf<Pair<Int, Int>, Long>()
     fun arrangementCount(lineIndex: Int = 0, quantityIndex: Int = 0): Long {
-        memoTable[lineIndex to quantityIndex]?.let { return it }
+        arrangementCount[lineIndex to quantityIndex]?.let { return it }
         return run {
             val quantity = quantities.getOrNull(quantityIndex)
                 ?: return@run if (
@@ -43,7 +39,7 @@ fun arrangementCount(line: String, quantities: List<Int>): Long {
                 arrangementCount(start + quantity.inc(), quantityIndex.inc())
             }
         }.also {
-            memoTable[lineIndex to quantityIndex] = it
+            arrangementCount[lineIndex to quantityIndex] = it
         }
     }
     return arrangementCount()
