@@ -16,7 +16,7 @@ fun main() {
         }.println()
 }
 
-fun arrangementCount(line: String, quantities: List<Int>): Long {
+private fun arrangementCount(line: String, quantities: List<Int>): Long {
     val arrangementCount = mutableMapOf<Pair<Int, Int>, Long>()
     fun arrangementCount(lineIndex: Int = 0, quantityIndex: Int = 0): Long {
         arrangementCount[lineIndex to quantityIndex]?.let { return it }
