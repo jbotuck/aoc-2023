@@ -1,7 +1,7 @@
 fun main() {
     val grid = run {
         val input = readInput("Day10")
-        Array(input.size) { y -> Array(input[y].length) { x -> Tile(y, x, input[y][x]) } }
+        Array(input.size) { y -> Array(input[y].length) { x -> Tile10(y, x, input[y][x]) } }
     }
     run {//part1 draw the loop, print the measurement, replace S with F
         val start = grid.firstNotNullOf { row -> row.firstOrNull { it.value == 'S' } }
@@ -28,7 +28,7 @@ fun main() {
     }
     //part 2
     @Suppress("NAME_SHADOWING")
-    suspend fun SequenceScope<Tile>.visit(tile: Tile, isEnclosed: Boolean? = null) {
+    suspend fun SequenceScope<Tile10>.visit(tile: Tile10, isEnclosed: Boolean? = null) {
         if (tile.isVisited) return
         val isEnclosed = isEnclosed ?: grid.isEnclosed(tile)
         tile.isVisited = true
@@ -44,16 +44,16 @@ fun main() {
     }.count().println()
 }
 
-private fun Array<Array<Tile>>.adjacentTo(tile: Tile) =
+private fun Array<Array<Tile10>>.adjacentTo(tile: Tile10) =
     tile.adjacentCoordinates().mapNotNull { (y, x) -> getOrNull(y)?.getOrNull(x) }
 
-private fun Array<Array<Tile>>.isEnclosed(tile: Tile) = get(tile.y)
+private fun Array<Array<Tile10>>.isEnclosed(tile: Tile10) = get(tile.y)
     .slice(0 until tile.x)
     //if a tile doesn't connect to the one above it, sneak above it
     .count { it.isPipe && it.value in listOf('|', 'J', 'L') } % 2 == 1
 
 
-private data class Tile(val y: Int, val x: Int, val value: Char) {
+private data class Tile10(val y: Int, val x: Int, val value: Char) {
     fun adjacentCoordinates() = listOf(
         y.inc() to x,
         y.dec() to x,
