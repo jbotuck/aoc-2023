@@ -1,10 +1,10 @@
 fun main() {
     val masterGrid = readInput("Day16")
-    fun totalEnergized(direction: Direction, i: Int): Int {
+    fun totalEnergized(direction: Direction16, i: Int): Int {
         val grid = masterGrid.map { row -> row.map { Tile(it) } }
         val (y, x) = direction.coordinatesOfFirstEdge(i)
 
-        val toEnergize = ArrayDeque<Triple<Int, Int, Direction>>().apply {
+        val toEnergize = ArrayDeque<Triple<Int, Int, Direction16>>().apply {
             add(
                 Triple(
                     y.coerceAtMost(grid.lastIndex),
@@ -27,46 +27,46 @@ fun main() {
     }
 
     //part1
-    totalEnergized(Direction.EAST, 0).println()
+    totalEnergized(Direction16.EAST, 0).println()
 
     //part 2
     masterGrid.indices
-        .flatMap { listOf(totalEnergized(Direction.EAST, it), totalEnergized(Direction.WEST, it)) }
+        .flatMap { listOf(totalEnergized(Direction16.EAST, it), totalEnergized(Direction16.WEST, it)) }
         .plus(
             masterGrid.first().indices.flatMap {
                 listOf(
-                    totalEnergized(Direction.SOUTH, it),
-                    totalEnergized(Direction.NORTH, it)
+                    totalEnergized(Direction16.SOUTH, it),
+                    totalEnergized(Direction16.NORTH, it)
                 )
             }
         ).max().println()
 
 }
 
-private data class Tile(val c: Char, private val lightDirections: MutableSet<Direction> = mutableSetOf()) {
+private data class Tile(val c: Char, private val lightDirections: MutableSet<Direction16> = mutableSetOf()) {
     fun isEnergized() = lightDirections.isNotEmpty()
 
-    fun energize(direction: Direction): Set<Direction> {
+    fun energize(direction: Direction16): Set<Direction16> {
         if (direction in lightDirections) return emptySet()
         lightDirections.add(direction)
         return when (c) {
-            '-' -> if (direction.isVertical()) setOf(Direction.EAST, Direction.WEST) else setOf(direction)
-            '|' -> if (direction.isVertical()) setOf(direction) else setOf(Direction.NORTH, Direction.SOUTH)
+            '-' -> if (direction.isVertical()) setOf(Direction16.EAST, Direction16.WEST) else setOf(direction)
+            '|' -> if (direction.isVertical()) setOf(direction) else setOf(Direction16.NORTH, Direction16.SOUTH)
             '/' -> setOf(
                 when (direction) {
-                    Direction.NORTH -> Direction.EAST
-                    Direction.EAST -> Direction.NORTH
-                    Direction.SOUTH -> Direction.WEST
-                    Direction.WEST -> Direction.SOUTH
+                    Direction16.NORTH -> Direction16.EAST
+                    Direction16.EAST -> Direction16.NORTH
+                    Direction16.SOUTH -> Direction16.WEST
+                    Direction16.WEST -> Direction16.SOUTH
                 }
             )
 
             '\\' -> setOf(
                 when (direction) {
-                    Direction.NORTH -> Direction.WEST
-                    Direction.WEST -> Direction.NORTH
-                    Direction.SOUTH -> Direction.EAST
-                    Direction.EAST -> Direction.SOUTH
+                    Direction16.NORTH -> Direction16.WEST
+                    Direction16.WEST -> Direction16.NORTH
+                    Direction16.SOUTH -> Direction16.EAST
+                    Direction16.EAST -> Direction16.SOUTH
                 }
             )
 
@@ -76,7 +76,7 @@ private data class Tile(val c: Char, private val lightDirections: MutableSet<Dir
 }
 
 
-private enum class Direction(val y: Int, val x: Int, val coordinatesOfFirstEdge: (Int) -> Pair<Int, Int>) {
+private enum class Direction16(val y: Int, val x: Int, val coordinatesOfFirstEdge: (Int) -> Pair<Int, Int>) {
     NORTH(-1, 0, { Int.MAX_VALUE to it }),
     SOUTH(1, 0, { 0 to it }),
     EAST(0, 1, { it to 0 }),
