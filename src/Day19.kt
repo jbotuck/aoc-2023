@@ -1,5 +1,5 @@
 fun main() {
-    val (workflows, parts) = parseInput(readInput("Day19"))
+    val (workflows, parts) = parseInput19(readInput("Day19"))
     run {
         //part 1
         fun executeWorkFlow(workflow: String, part: Part): Boolean = when (workflow) {
@@ -34,7 +34,7 @@ fun main() {
     acceptedCombinations(PartConstraint(), "in").println()
 }
 
-private fun parseInput(lines: List<String>): Pair<Map<String, Workflow>, List<Part>> {
+private fun parseInput19(lines: List<String>): Pair<Map<String, Workflow>, List<Part>> {
     fun String.toWorkflow(): Workflow {
         fun String.toRule(): Rule {
             val (filterLine, workflow) = split(':')
