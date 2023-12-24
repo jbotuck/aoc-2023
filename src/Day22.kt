@@ -21,22 +21,44 @@ fun main() {
             brick.minZ().dec().downTo(0).first { z -> grid[z][y][x] != null }
         }.inc()
         val zShift = brick.minZ() - newZ
-        brick.point2ds()
+        brick.supportedBy = brick.point2ds()
             .mapNotNull { (y, x) -> grid[newZ.dec()][y][x] }
             .toSet()
+       brick.supportedBy
             .singleOrNull()
-            ?.let { destroyableBricks.remove(it) }
-        for ((z, y, x) in brick.points()){
-            grid[z- zShift][y][x] = brick
-        }
+            ?.let {
+                destroyableBricks.remove(it)
+            }
 
+        for (supportingBrick in brick.supportedBy){
+            supportingBrick.addDependentBrick(brick)
+        }
+        for ((z, y, x) in brick.points()) {
+            grid[z - zShift][y][x] = brick
+        }
     }
     destroyableBricks.count().println()
+
+    bricks.sumOf {
+        val destroyedBricks = mutableSetOf(it)
+        val bricksToCheck = ArrayDeque(it.supports)
+        while(bricksToCheck.isNotEmpty()){
+            val brick = bricksToCheck.removeFirst()
+            if(brick.supportedBy.minus(destroyedBricks).isEmpty()){
+                destroyedBricks.add(brick)
+                bricksToCheck.addAll(brick.supports)
+            }
+        }
+        destroyedBricks.size.dec()
+    }.println()
+
 }
 
 private data class Point3d(val z: Int, val y: Int, val x: Int)
 
 private data class Brick(val start: Point3d, val end: Point3d) {
+    lateinit var supportedBy: Set<Brick>
+    val supports = mutableSetOf<Brick>()
     fun minZ() = extract(Point3d::z).min()
     fun minY() = extract(Point3d::y).min()
 
@@ -61,6 +83,10 @@ private data class Brick(val start: Point3d, val end: Point3d) {
                         }
                     }
             }
+    }
+
+    fun addDependentBrick(brick: Brick) {
+        supports.add(brick)
     }
 
 }
