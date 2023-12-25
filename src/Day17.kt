@@ -12,7 +12,7 @@ fun main() {
         fun visit(pathSegment: PathSegment, heatLoss: Int) {
             if (pathSegment in visited) return
             visited.add(pathSegment)
-            val nextDirections = Direction.entries.toMutableSet()
+            val nextDirections = Direction17.entries.toMutableSet()
             pathSegment.lastDirection?.let { nextDirections.remove(it.reverse()) }
             toVisit.addAll(
                 nextDirections.map {
@@ -39,11 +39,11 @@ fun main() {
     //part 2
     run {
         val toVisit = PriorityQueue<Pair<PathSegment, Int>>(Comparator.comparing { (_, heatLoss) -> heatLoss })
-        toVisit.add(PathSegment(0, 4, Direction.EAST, 4) to 1.rangeTo(4).sumOf { blocks[0][it].digitToInt() })
-        toVisit.add(PathSegment(4, 0, Direction.SOUTH, 4) to 1.rangeTo(4).sumOf { blocks[it][0].digitToInt() })
+        toVisit.add(PathSegment(0, 4, Direction17.EAST, 4) to 1.rangeTo(4).sumOf { blocks[0][it].digitToInt() })
+        toVisit.add(PathSegment(4, 0, Direction17.SOUTH, 4) to 1.rangeTo(4).sumOf { blocks[it][0].digitToInt() })
 
         val visited = mutableSetOf<PathSegment>()
-        fun PathSegment.turn(direction: Direction): Pair<PathSegment, Int>? {
+        fun PathSegment.turn(direction: Direction17): Pair<PathSegment, Int>? {
             val loss = 1.rangeTo(4).sumOf {
                 blocks.getOrNull(y + direction.y * it)?.getOrNull(x + direction.x * it)?.digitToInt() ?: return null
             }
@@ -53,7 +53,7 @@ fun main() {
         fun visit(pathSegment: PathSegment, heatLoss: Int) {
             if (pathSegment in visited) return
             visited.add(pathSegment)
-            val turns = Direction.entries - setOf(pathSegment.lastDirection!!, pathSegment.lastDirection.reverse())
+            val turns = Direction17.entries - setOf(pathSegment.lastDirection!!, pathSegment.lastDirection.reverse())
             toVisit.addAll(
                 turns.mapNotNull { pathSegment.turn(it)?.let { (segment, newLoss) -> segment to newLoss + heatLoss } }
             )
@@ -82,11 +82,11 @@ fun main() {
 private data class PathSegment(
     val y: Int,
     val x: Int,
-    val lastDirection: Direction?,
+    val lastDirection: Direction17?,
     val stepsTakenInDirection: Int,
 )
 
-private enum class Direction(val y: Int, val x: Int) {
+private enum class Direction17(val y: Int, val x: Int) {
     NORTH(-1, 0),
     SOUTH(1, 0),
     EAST(0, 1),
